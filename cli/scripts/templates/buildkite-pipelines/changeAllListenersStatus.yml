@@ -1,0 +1,39 @@
+# env:
+#  METADATA_FILE: "/tmp/metadata.sh"
+
+steps:
+  - command:
+    - "rm -rf \\${METADATA_FILE}"
+    label: ":Clean Up"
+    if:  build.message !~ /skip input/
+    agents:
+      queue: "${AWS_STACK}"
+
+  - input: "Enter Process Details to Execute"
+    fields:
+      - text: "Atom Name"
+        key: "atomName"
+        required: true
+        hint: "Atom name where the process must run"
+      - text: "Atom Type"
+        key: "atomType"
+        required: false
+        default: "*"
+        hint: "The Atom Type"
+      - text: "Action"
+        key: "action"
+        required: true
+        default: ""
+        hint: "Choose from pause_all, resume_all, and restart_all"
+    label: ":Change All Listener Status Input"
+    if:  build.message !~ /skip input/
+
+  - wait
+
+  - command:
+      - "cd cli/scripts"
+      - "source bin/exports.sh"
+      - "source bin/changeAllListenersStatus.sh"       
+    label: ":boomi: Change All Listerner Status"
+    agents:
+      queue: "${AWS_STACK}"
