@@ -1,0 +1,64 @@
+# env:
+#  METADATA_FILE: "/tmp/metadata.sh"
+
+steps:
+
+  - input: "Enter Package Details"
+    fields:
+      - text: "Environment"
+        key: "env"
+        required: true
+        hint: "Environment name where the package is to be deployed"
+      - text: "Component ID"
+        key: "componentId"
+        default: ""
+        required: false
+      - text: "Process Name (Enter either component id or process name)"
+        key: "processName"
+        required: false
+        default: ""
+        hint: "If component id is entered process name is ignored"
+      - text: "Component Version"
+        key: "componentVersion"
+        required: false
+        default: ""
+        hint: "If component version is blank, latest component version will be referenced."
+      - text: "Component Type"
+        key: "componentType"
+        required: false
+        default: ""
+        hint: "Default component type is process."
+      - text: "Deployment Notes"
+        key: "notes"
+        required: true
+        hint: "Helpful notes"        
+      - text: "Package Version"
+        key: "packageVersion"
+        required: true
+        hint: "If the package version for the Component exist, new package will not be created"
+      - text: "Top level folder to extract Component XMLs files (optional)"
+        key: "extractComponentXmlFolder"
+        required: false
+        default: ""
+        hint: "The folders will be extracted to local disk"
+      - text: "Tag name to store into git (optional)"
+        key: "tag"
+        required: false
+        default: ""
+        hint: "The folders will be tagged in the ${BOOMI_COMPONENTS_GIT_REPO}"
+      - text: "Status of the listener post deployment"
+        key: "listenerStatus"
+        default: "RUNNING"
+        required: true
+        hint: "Choices are RUNNING or PAUSED"            
+    label: ":Package Deployment Input"
+    if:  build.message !~ /skip input/
+  - wait
+
+  - command:
+      - "cd cli/scripts"
+      - "source bin/exports.sh"
+      - "source bin/deployPackage.sh"       
+    label: ":boomi: Deploy Package"
+    agents:
+      queue: "${AWS_STACK}"

@@ -1,0 +1,51 @@
+# env:
+#  METADATA_FILE: "/tmp/metadata.sh"
+
+steps:
+
+  - input: "Enter Package Details"
+    fields:
+      - text: "List of components ids (Comma separated list)"
+        key: "componentIds"
+        default: ""
+        required: false
+        hint: "Comma separate list of component ids"
+      - text: "List of process names (Comma separated list)"
+        key: "processNames"
+        required: false
+        default: ""
+        hint: "If component ids are entered process names is ignored"
+      - text: "Component Type"
+        key: "componentType"
+        required: false
+        default: ""
+        hint: "If component type is blank, defaults to process"
+      - text: "Creation Notes"
+        key: "notes"
+        required: true
+        hint: "Helpful notes."
+      - text: "Package Version"
+        key: "packageVersion"
+        required: true
+        hint: "If the package version for the component exist, new package will not be created"
+      - text: "Top level folder to extract component xml files (optional)"
+        key: "extractComponentXmlFolder"
+        required: false
+        default: ""
+        hint: "The folders will be extracted to be sent to GIT"
+      - text: "Tag name to store into git (optional)"
+        key: "tag"
+        required: false
+        default: ""
+        hint: "The folders will be tagged in the ${BOOMI_COMPONENTS_GIT_REPO}"
+    label: ":Package Creation Input"
+    if:  build.message !~ /skip input/
+  - wait
+
+  - command:
+      - "cd cli/scripts"
+      - "source bin/exports.sh"
+      - "source bin/createPackages.sh"
+    label: ":boomi: Create Packages"
+    agents:
+      queue: "${AWS_STACK}"
